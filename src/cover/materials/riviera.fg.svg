@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMax meet">
+  <defs>
+    <clipPath id="riv-top"><path d="M110 1000C124 880 200 790 330 736C380 760 470 760 530 732C650 786 706 880 718 1000Z"/></clipPath>
+    <linearGradient id="riv-lens" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a1f4f"/>
+      <stop offset="1" stop-color="#120e1c"/>
+    </linearGradient>
+  </defs>
+  <!-- Breton top -->
+  <g clip-path="url(#riv-top)">
+    <rect x="100" y="700" width="640" height="300" fill="#f7f5ef"/>
+    <g fill="#1d2b5c">
+      <rect x="100" y="770" width="640" height="18"/><rect x="100" y="820" width="640" height="18"/>
+      <rect x="100" y="870" width="640" height="18"/><rect x="100" y="920" width="640" height="18"/>
+      <rect x="100" y="970" width="640" height="18"/>
+    </g>
+    <path d="M530 732C620 776 676 840 700 920C650 860 590 820 520 800Z" fill="#1d2b5c" opacity="0.18"/>
+  </g>
+  <!-- neck -->
+  <path fill="#f3d3bf" d="M380 520L476 512C474 580 486 660 520 740C470 760 390 760 340 740C370 680 384 600 380 520Z"/>
+  <path fill="#deb09a" d="M380 540C420 570 456 566 478 540C478 600 488 650 500 690C452 660 410 610 380 540Z"/>
+  <!-- scarf tails flying back -->
+  <path fill="#e8566a" d="M440 566C520 560 600 520 680 470C710 452 740 450 760 456C730 470 714 500 690 520C620 576 530 600 450 596Z"/>
+  <path fill="#d23f58" d="M450 590C530 610 600 640 660 690C684 710 712 716 734 712C708 734 670 742 640 728C580 700 510 650 446 612Z"/>
+  <g fill="#fff3ea">
+    <circle cx="560" cy="560" r="7"/><circle cx="620" cy="530" r="7"/><circle cx="680" cy="494" r="6"/><circle cx="520" cy="584" r="6"/>
+    <circle cx="560" cy="636" r="6"/><circle cx="620" cy="676" r="6"/><circle cx="676" cy="712" r="5"/>
+  </g>
+  <!-- face, three-quarter to the left -->
+  <path fill="#f6dcca" d="M322 220C306 260 302 300 300 322C300 334 310 344 308 356C304 372 298 384 302 400C306 430 316 452 330 476C346 504 368 526 394 532C420 536 452 516 478 486C498 462 512 430 516 390C520 340 516 280 500 230C470 180 360 170 322 220Z"/>
+  <path fill="#e9bea8" d="M516 390C512 430 498 462 478 486C458 510 434 528 410 532C440 512 466 476 478 436C488 400 490 350 486 300C500 320 516 350 516 390Z"/>
+  <!-- hair peeking under the scarf -->
+  <path fill="#5a2e1e" d="M318 238C360 218 430 212 498 228L502 244C440 232 374 236 316 256Z"/>
+  <!-- nose and lips (a small smile) -->
+  <path d="M372 362C368 380 360 394 350 406C346 414 352 420 362 420" stroke="#cf9a84" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <path d="M366 422C372 426 380 426 386 422" stroke="#c48a74" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <path fill="#c8203c" d="M334 458C344 450 356 448 364 454C374 446 392 448 408 456C388 466 352 466 334 458Z"/>
+  <path fill="#a8122d" d="M336 460C352 484 394 484 408 456C388 470 354 470 336 460Z"/>
+  <path d="M330 456C334 452 338 452 340 454M406 454C410 450 414 450 416 448" stroke="#b9786a" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <ellipse cx="456" cy="414" rx="30" ry="16" fill="#ef8f8a" opacity="0.35"/>
+  <!-- cat-eye sunglasses -->
+  <path fill="url(#riv-lens)" d="M368 326C388 312 430 306 470 304C476 304 480 310 476 318C468 346 452 372 420 374C392 376 374 360 368 340Z"/>
+  <path fill="url(#riv-lens)" d="M292 322C310 312 334 314 352 324C354 344 346 364 328 368C310 370 298 358 296 344C294 336 292 330 292 322Z"/>
+  <path d="M352 330C358 324 364 324 370 330" stroke="#120e1c" stroke-width="6" fill="none"/>
+  <path d="M476 314L512 330" stroke="#120e1c" stroke-width="6" stroke-linecap="round"/>
+  <path d="M392 330L420 316M400 352L452 322" stroke="#d9a6ff" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+  <path d="M302 334L318 324" stroke="#d9a6ff" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <!-- headscarf -->
+  <path fill="#e8566a" d="M290 330C284 212 356 112 456 110C560 112 614 190 604 290C598 360 572 420 540 470C520 506 488 536 452 560L420 572C450 540 480 500 500 452C516 410 520 360 516 300C512 260 500 236 480 222C420 204 352 214 318 236C306 260 300 296 298 330C298 400 314 470 360 532C380 548 400 560 420 572C380 570 340 552 316 520C290 470 288 400 290 330Z"/>
+  <path fill="#c93950" d="M604 290C598 360 572 420 540 470C520 506 488 536 452 560C500 520 540 460 556 400C566 360 572 320 570 280C584 280 596 284 604 290Z"/>
+  <g fill="#fff3ea">
+    <circle cx="380" cy="162" r="9"/><circle cx="450" cy="140" r="9"/><circle cx="520" cy="156" r="9"/><circle cx="572" cy="200" r="9"/>
+    <circle cx="414" cy="190" r="8"/><circle cx="486" cy="184" r="8"/><circle cx="548" cy="250" r="8"/><circle cx="340" cy="210" r="8"/>
+    <circle cx="560" cy="330" r="8"/><circle cx="546" cy="410" r="8"/><circle cx="510" cy="480" r="7"/><circle cx="304" cy="290" r="6"/>
+    <circle cx="304" cy="390" r="6"/><circle cx="324" cy="480" r="6"/><circle cx="586" cy="270" r="7"/>
+  </g>
+  <!-- knot -->
+  <ellipse cx="434" cy="578" rx="30" ry="22" fill="#d23f58"/>
+  <path d="M414 572C426 566 442 566 454 574" stroke="#a82a42" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>

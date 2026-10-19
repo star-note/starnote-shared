@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <linearGradient id="riv-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fd6d0"/>
+      <stop offset="1" stop-color="#e3f1e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="920" fill="url(#riv-sky)"/>
+  <circle cx="300" cy="640" r="120" fill="#ffd9a8"/>
+  <rect y="900" width="1200" height="300" fill="#1f7f86"/>
+  <rect y="900" width="1200" height="10" fill="#7cc7c2"/>
+  <g fill="#e3f1e8" opacity="0.8">
+    <rect x="120" y="950" width="160" height="5" rx="2.5"/><rect x="380" y="990" width="120" height="5" rx="2.5"/>
+    <rect x="860" y="960" width="200" height="5" rx="2.5"/><rect x="700" y="1060" width="150" height="5" rx="2.5"/>
+    <rect x="200" y="1100" width="220" height="5" rx="2.5"/><rect x="980" y="1120" width="140" height="5" rx="2.5"/>
+  </g>
+  <g fill="#ffffff">
+    <path d="M980 896l26-70v70z"/><path d="M1010 896l20-50 6 50z" opacity="0.85"/>
+    <path d="M120 896l18-46v46z" opacity="0.9"/>
+  </g>
+  <rect x="972" y="896" width="70" height="6" rx="3" fill="#163e4e"/>
+</svg>

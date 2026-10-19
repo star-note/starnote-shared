@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMax meet">
+  <!-- hair behind the head and neck -->
+  <path fill="#121019" d="M262 300C262 170 330 84 430 84C530 84 590 160 590 280C592 380 596 470 590 540C586 572 562 590 520 592C440 596 330 592 282 582C252 574 242 540 244 460C248 400 262 350 262 300Z"/>
+  <!-- funnel-neck top -->
+  <path fill="#f5f2fa" d="M120 1000C134 880 210 790 340 744L356 650C400 670 470 670 512 646L528 744C640 790 700 880 712 1000Z"/>
+  <path fill="#d6cfe8" d="M512 646L528 744C600 772 652 812 684 870C626 824 566 798 500 790Z"/>
+  <path fill="#e6e1f2" d="M356 650C400 670 470 670 512 646L516 676C470 698 400 698 352 680Z"/>
+  <path d="M436 770C440 850 440 930 436 1000" stroke="#d6cfe8" stroke-width="4" fill="none"/>
+  <!-- neck -->
+  <path fill="#f4dccd" d="M372 480L478 470C474 540 482 610 500 660C460 676 400 676 362 664C376 610 380 550 372 480Z"/>
+  <path fill="#e2b8a6" d="M374 516C420 540 460 526 482 492C478 540 482 580 488 610C450 600 410 570 374 516Z"/>
+  <!-- face, three-quarter to the left -->
+  <path fill="#f7e4d8" d="M322 220C306 260 302 300 300 322C300 334 310 344 308 356C304 372 298 384 302 400C306 430 316 452 330 476C346 504 368 526 394 532C420 536 452 516 478 486C498 462 512 430 516 390C520 340 516 280 500 230C470 180 360 170 322 220Z"/>
+  <path fill="#e8c3b2" d="M516 390C512 430 498 462 478 486C458 510 434 528 410 532C440 512 466 476 478 436C488 400 490 350 486 300C500 320 516 350 516 390Z"/>
+  <!-- ear, earring -->
+  <path fill="#efcfbf" d="M508 360C528 352 540 372 534 396C530 416 520 428 508 430Z"/>
+  <circle cx="516" cy="458" r="20" fill="none" stroke="#e2b84a" stroke-width="5"/>
+  <!-- brows -->
+  <path fill="#1b1418" d="M384 316C400 302 430 298 452 306C430 304 404 310 386 322Z"/>
+  <path fill="#1b1418" d="M314 316C324 308 338 306 350 310C338 310 326 314 316 322Z"/>
+  <!-- eyes: lowered lids with long lashes -->
+  <path d="M388 346C402 356 422 358 442 350" stroke="#1b1418" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="M442 350L456 340" stroke="#1b1418" stroke-width="4" stroke-linecap="round"/>
+  <path d="M396 352l-4 9M406 356l-2 10M418 357l0 10M430 355l2 9" stroke="#1b1418" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M318 346C326 352 336 353 346 349" stroke="#1b1418" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M322 350l-3 7M332 352l-1 8M341 351l1 7" stroke="#1b1418" stroke-width="2" stroke-linecap="round"/>
+  <!-- nose: one line on the far side -->
+  <path d="M372 330C368 360 360 386 350 404C346 412 352 418 360 418" stroke="#cf9e8b" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <path d="M366 420C372 424 380 424 386 420" stroke="#c48d7a" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <!-- lips -->
+  <path fill="#d0213f" d="M334 460C344 450 356 448 364 454C374 446 392 448 404 460C384 464 352 464 334 460Z"/>
+  <path fill="#ad1230" d="M336 462C350 482 390 484 404 462C384 466 354 466 336 462Z"/>
+  <path d="M366 472c6 0 12-1 18-4" stroke="#ec6a80" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <ellipse cx="452" cy="410" rx="30" ry="16" fill="#ee9aa2" opacity="0.32"/>
+  <!-- crown and the long side-swept fringe that curtains the far cheek -->
+  <path fill="#121019" d="M430 84C530 84 592 160 590 270C580 250 556 226 520 214C500 236 492 270 494 300C484 250 470 220 452 206C420 250 360 270 330 300C318 340 312 380 316 430C320 480 336 530 352 576C320 580 286 574 262 560C246 500 250 420 260 340C270 230 330 84 430 84Z"/>
+  <!-- tucked side behind the ear -->
+  <path fill="#121019" d="M456 196C520 206 580 236 590 270C592 380 596 470 590 540C576 520 556 500 540 470C548 430 548 380 536 352C524 330 506 330 500 340C494 290 480 240 456 196Z"/>
+  <!-- sheen -->
+  <g fill="none" stroke="#3b3854" stroke-linecap="round">
+    <path d="M360 140C400 108 470 104 520 124" stroke-width="12"/>
+    <path d="M304 300C290 360 288 440 304 520" stroke-width="7" opacity="0.85"/>
+    <path d="M430 160C420 200 390 236 350 262" stroke-width="5" opacity="0.8"/>
+    <path d="M568 300C574 380 574 450 568 510" stroke-width="5" opacity="0.7"/>
+  </g>
+</svg>

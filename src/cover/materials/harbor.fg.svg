@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 1000" preserveAspectRatio="xMidYMax meet">
+  <defs>
+    <linearGradient id="hb-beam-r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff6d8" stop-opacity="0.7"/><stop offset="1" stop-color="#fff6d8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="hb-beam-l" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff6d8" stop-opacity="0.45"/><stop offset="1" stop-color="#fff6d8" stop-opacity="0"/></linearGradient>
+  </defs>
+  <!-- light beam -->
+  <path d="M250 150L500 96V196Z" fill="url(#hb-beam-r)"/>
+  <path d="M250 150L0 106V184Z" fill="url(#hb-beam-l)"/>
+  <!-- tower -->
+  <path fill="#f7f1ea" d="M196 860L214 240H286L304 860Z"/>
+  <path fill="#ddd2cc" d="M262 240H286L304 860H272Z"/>
+  <g fill="#6918b4">
+    <path d="M210 380H290L294 470H206Z"/>
+    <path d="M204 560H296L300 650H200Z"/>
+    <path d="M198 740H302L304 820H196Z"/>
+  </g>
+  <g fill="#4f0f8a">
+    <path d="M272 380H290L294 470H276Z"/><path d="M274 560H296L300 650H278Z"/><path d="M276 740H302L304 820H278Z"/>
+  </g>
+  <!-- gallery and lantern -->
+  <rect x="196" y="226" width="108" height="16" fill="#2a2244"/>
+  <path d="M204 226V212H296V226" fill="none" stroke="#2a2244" stroke-width="4"/>
+  <rect x="222" y="150" width="56" height="64" fill="#ffe7a8"/>
+  <path d="M222 150V214M250 150V214M278 150V214" stroke="#2a2244" stroke-width="4"/>
+  <path d="M212 150L250 112L288 150Z" fill="#c8102e"/>
+  <rect x="247" y="92" width="6" height="22" fill="#2a2244"/>
+  <!-- door, window -->
+  <path d="M236 860V812C236 800 264 800 264 812V860Z" fill="#2a2244"/>
+  <rect x="242" y="300" width="16" height="26" rx="8" fill="#2a2244"/>
+  <!-- rocks -->
+  <path fill="#3b3560" d="M0 1000C30 980 60 944 100 924C140 884 220 852 270 862C330 848 390 872 430 902C460 930 488 970 500 1000Z"/>
+  <path fill="#2a2548" d="M290 1000C320 950 380 920 432 928C466 944 488 972 500 1000Z"/>
+  <path fill="#504a7c" d="M110 918C140 896 190 884 230 892C200 904 150 914 110 918Z"/>
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.85">
+    <path d="M70 986C96 976 120 990 150 982"/><path d="M190 990C214 982 236 994 262 988"/>
+  </g>
+</svg>
