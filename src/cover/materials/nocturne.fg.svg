@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMax meet">
+  <defs>
+    <radialGradient id="noc-blush" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f08fb8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f08fb8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- neck and face (profile facing left) -->
+  <path fill="#ece3f8" d="M338 176C304 192 290 232 290 270C290 292 284 302 286 314C288 326 296 334 292 346C282 368 262 388 248 404C242 412 246 420 256 420C264 420 272 422 274 428C270 434 262 440 263 447C264 453 272 455 276 457C271 461 267 468 270 474C273 481 284 484 288 490C284 502 280 518 290 532C300 546 332 550 362 546C372 566 380 594 384 640L384 700L528 700L540 400L420 160Z"/>
+  <path fill="#d8c9f3" d="M296 540C356 532 408 506 448 470L478 570C440 586 404 606 386 640C376 596 352 562 296 540Z"/>
+  <path fill="#c8b4ee" d="M296 540C326 548 350 552 364 550C374 570 382 600 386 636C368 598 344 568 300 548Z"/>
+  <ellipse cx="350" cy="420" rx="56" ry="34" fill="url(#noc-blush)"/>
+  <!-- lips -->
+  <path fill="#a3195f" d="M274 428C270 434 262 440 263 447C264 453 272 455 278 457L291 453C293 444 289 434 281 429Z"/>
+  <path fill="#86104d" d="M278 457C271 461 267 468 270 474C273 481 282 484 289 484C295 474 293 462 291 455Z"/>
+  <path d="M276 457L293 453" stroke="#5c0a33" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- nostril, eye, brow -->
+  <path d="M262 410c4 3 9 4 14 2" stroke="#b9a2e6" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <path d="M298 336c9 5 20 7 32 3" stroke="#1b1140" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <path d="M302 340l-7 9M311 342l-5 10M320 342l-3 10" stroke="#1b1140" stroke-width="2.6" stroke-linecap="round"/>
+  <path fill="#1b1140" d="M326 340C334 338 340 334 346 326C344 336 338 342 328 344Z"/>
+  <path fill="#1b1140" d="M289 309C300 298 320 292 344 296C324 296 306 302 291 314Z"/>
+  <!-- wind-blown locks -->
+  <g fill="#1b1140">
+    <path d="M420 100C520 58 640 78 720 108C750 120 772 120 790 110C770 140 730 152 690 146C620 138 540 152 470 192Z"/>
+    <path d="M470 200C560 168 660 190 740 230C764 242 784 240 795 232C780 262 740 274 700 266C630 254 560 270 500 302Z"/>
+    <path d="M490 326C570 316 650 338 720 378C748 394 774 396 790 388C772 420 732 432 690 422C620 404 552 420 494 452Z"/>
+    <path d="M478 470C548 474 622 506 690 528C720 538 748 536 770 524C752 554 702 568 650 558C584 546 524 562 472 574Z"/>
+  </g>
+  <!-- ear -->
+  <path fill="#e2d6f5" d="M452 352C470 338 494 350 492 380C490 404 478 420 468 432C460 440 450 434 452 420C456 400 448 372 452 352Z"/>
+  <path d="M462 366C474 362 482 372 478 388C476 398 470 404 466 410" stroke="#c4b0ec" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- hair mass over the skull, swept behind the ear -->
+  <path fill="#1b1140" d="M330 184C334 130 380 96 444 88C506 82 556 112 574 164C592 222 584 300 574 362C564 432 546 500 526 560C510 588 482 590 468 572C484 532 508 480 498 420C492 370 480 344 460 340C446 340 440 352 438 360C426 330 404 300 388 262C372 224 352 196 330 184Z"/>
+  <!-- highlights -->
+  <g fill="none" stroke="#6b3fd0" stroke-width="5" stroke-linecap="round">
+    <path d="M390 130C470 92 560 92 640 108C680 116 710 124 740 124"/>
+    <path d="M430 222C510 196 600 202 680 228C710 238 736 244 760 244"/>
+    <path d="M524 364C580 358 640 372 700 396C720 404 744 406 762 404"/>
+    <path d="M510 506C570 512 630 530 690 544"/>
+  </g>
+  <g fill="none" stroke="#3a2386" stroke-width="4" stroke-linecap="round">
+    <path d="M370 176C420 160 470 160 520 172"/>
+    <path d="M420 290C470 276 520 280 560 292"/>
+    <path d="M460 440C500 430 540 434 560 440"/>
+  </g>
+  <!-- pearl drop -->
+  <path d="M462 436v18" stroke="#e8c98a" stroke-width="3"/>
+  <circle cx="462" cy="466" r="12" fill="#f6eedc"/>
+  <circle cx="458" cy="462" r="3.5" fill="#ffffff"/>
+  <!-- coat with stand collar -->
+  <g transform="translate(0 -40)">
+    <path fill="#6918b4" d="M298 1040C300 900 318 800 360 724L372 664C420 680 480 680 532 660L540 680C620 700 700 750 740 830C766 882 778 940 784 1040Z"/>
+    <path fill="#7f30d0" d="M372 664C420 680 480 680 532 660L540 700C488 720 418 722 366 706Z"/>
+    <path fill="#4f0f8a" d="M366 706C418 722 488 720 540 700L546 716C490 740 414 742 362 724Z"/>
+    <path d="M470 760C520 820 560 900 580 1040" stroke="#4f0f8a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M380 780C372 860 374 930 382 1040" stroke="#4f0f8a" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.7"/>
+  </g>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMax meet">
+  <defs>
+    <clipPath id="prl-face"><path d="M314 250C304 330 310 420 342 480C362 516 384 534 404 534C424 534 446 516 466 480C498 420 504 330 494 250Z"/></clipPath>
+    <radialGradient id="prl-pearl" cx="0.35" cy="0.35" r="0.65">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.6" stop-color="#f1ecf4"/>
+      <stop offset="1" stop-color="#c9bcd6"/>
+    </radialGradient>
+  </defs>
+  <!-- long hair behind -->
+  <path fill="#1a1220" d="M286 280C262 380 250 520 270 640C280 690 300 720 330 730L480 730C512 720 534 690 540 640C560 520 548 380 524 280Z"/>
+  <!-- décolletage and neck -->
+  <path fill="#f4dccf" d="M362 490L448 490C450 560 458 620 476 664C530 690 580 706 616 730L604 770H204L192 730C228 706 280 690 334 664C352 620 360 560 362 490Z"/>
+  <path fill="#e2b9a8" d="M362 512C392 548 424 548 448 512C450 556 454 590 460 620C430 596 394 560 362 512Z"/>
+  <path d="M250 724C300 714 350 712 384 718M424 718C460 712 510 714 560 724" stroke="#e2b9a8" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- black boat-neck dress -->
+  <path fill="#18121e" d="M70 1000C80 860 128 772 192 730C200 744 210 750 220 752C320 762 488 762 588 752C598 750 608 744 616 730C680 772 726 860 736 1000Z"/>
+  <path d="M260 830C250 900 250 950 256 1000M548 830C558 900 560 950 552 1000" stroke="#2c2234" stroke-width="5" fill="none"/>
+  <!-- pearl necklace -->
+  <g fill="url(#prl-pearl)">
+    <circle cx="336" cy="664" r="9"/><circle cx="345" cy="682" r="9.5"/><circle cx="356" cy="698" r="10"/><circle cx="370" cy="711" r="10"/>
+    <circle cx="386" cy="719" r="10.5"/><circle cx="404" cy="722" r="11"/><circle cx="422" cy="719" r="10.5"/><circle cx="438" cy="711" r="10"/>
+    <circle cx="452" cy="698" r="10"/><circle cx="463" cy="682" r="9.5"/><circle cx="472" cy="664" r="9"/>
+  </g>
+  <!-- face -->
+  <g transform="rotate(-5 404 400)">
+    <path fill="#f6e2d6" d="M314 250C304 330 310 420 342 480C362 516 384 534 404 534C424 534 446 516 466 480C498 420 504 330 494 250Z"/>
+    <path fill="#e8c2b1" d="M494 250C504 330 498 420 466 480C450 508 430 526 414 532C440 500 462 450 470 400C476 350 476 300 470 250Z"/>
+    <!-- brim shadow across the eyes -->
+    <g clip-path="url(#prl-face)">
+      <path fill="#c99a8a" d="M290 240H520V352C470 372 430 380 404 380C370 380 330 368 290 350Z"/>
+      <path d="M352 336C364 342 378 342 388 336M420 336C430 342 444 342 456 336" stroke="#5b3a3a" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.55"/>
+    </g>
+    <path d="M410 380C412 402 416 418 406 428" stroke="#d6a28f" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+    <path d="M390 430C396 434 402 434 406 432M418 430C414 434 410 434 406 432" stroke="#c78f7b" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <!-- red lips -->
+    <path fill="#c8102e" d="M370 466C382 456 394 454 404 460C414 454 428 456 440 466C420 470 390 470 370 466Z"/>
+    <path fill="#a00d27" d="M372 468C386 490 424 490 438 468C420 472 390 472 372 468Z"/>
+    <path d="M408 480c6 0 10-1 14-4" stroke="#e8566a" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <!-- hair at the temples -->
+    <path fill="#1a1220" d="M300 280C296 340 300 400 314 450C318 410 318 330 330 284Z"/>
+    <path fill="#1a1220" d="M508 280C512 340 508 400 494 450C490 410 490 330 478 284Z"/>
+    <!-- pearl earrings -->
+    <circle cx="322" cy="444" r="9" fill="url(#prl-pearl)"/>
+    <circle cx="488" cy="444" r="9" fill="url(#prl-pearl)"/>
+  </g>
+  <!-- wide-brim hat -->
+  <g transform="rotate(-9 400 250)">
+    <path fill="#18121e" d="M282 250C282 160 332 110 404 110C476 110 526 160 526 250Z"/>
+    <path fill="#6918b4" d="M284 226H524V252H284Z"/>
+    <ellipse cx="404" cy="262" rx="336" ry="62" fill="#18121e"/>
+    <path d="M90 270C200 300 610 300 718 270" stroke="#2e2436" stroke-width="5" fill="none"/>
+    <path d="M330 150C350 128 380 120 410 120" stroke="#2e2436" stroke-width="8" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
