@@ -24,8 +24,12 @@ export interface TemplateSummary {
   description: string;
   thumbnail?: string | null;
   layout: TemplateLayout;
-  /** CONTRACTS-r9 §7: the skin (article theme id) this 风格 carries; `null` = plain. */
+  /** CONTRACTS-r9 §7: the skin (article theme id) this template carries; `null` = plain. */
   skin?: string | null;
+  /** r10: `content` (example content: 用它新建 + 套用到本文) | `look` (只换外观). */
+  kind?: 'content' | 'look';
+  /** r10: the 用途 tag (周报 / 教程 / …) the library filters by; official content templates only. */
+  purpose?: string | null;
   sort: number;
   created_at: string;
   updated_at: string;
@@ -47,12 +51,14 @@ export const templatesApi = {
     content: TiptapDoc;
     layout?: TemplateLayout;
     skin?: string | null;
+    kind?: 'content' | 'look';
+    purpose?: string | null;
     thumbnail?: string | null;
   }) => api.post<TemplateDetail>('/templates', body),
   update: (
     id: string,
     body: Partial<
-      Pick<TemplateDetail, 'title' | 'description' | 'content' | 'layout' | 'skin' | 'thumbnail'>
+      Pick<TemplateDetail, 'title' | 'description' | 'content' | 'layout' | 'skin' | 'kind' | 'purpose' | 'thumbnail'>
     >,
   ) => api.patch<TemplateDetail>(`/templates/${id}`, body),
   remove: (id: string) => api.delete<null>(`/templates/${id}`),
