@@ -1,9 +1,9 @@
-import { OFFICIAL_STYLES } from './official';
-import type { OfficialStyleId, SkinId, Style } from './types';
+import type { NoteTemplate, OfficialLookId, SkinId } from './model';
+import { OFFICIAL_LOOKS } from './official';
 
 /**
  * Rule-based recommendation (no AI; the same map as `recommendThemes` in @starnote/publish-core, with 素雅默认 as
- * the neutral third choice). Used when AI is off, as the fallback when the model's answer cannot be read, and
+ * the neutral third choice). Picks among the six official looks only (a content template's skin is the same set). Used when AI is off, as the fallback when the model's answer cannot be read, and
  * by the API mock (`style.suggest`), so the three agree.
  */
 
@@ -44,7 +44,7 @@ const NAME_RULES: [RegExp, SkinId][] = [
 ];
 
 /** Each best style followed by its neighbours (mirrors the API mock's `_STYLE_AFFINITY`). */
-const AFFINITY: Record<OfficialStyleId, OfficialStyleId[]> = {
+const AFFINITY: Record<OfficialLookId, OfficialLookId[]> = {
   business: ['business', 'tech', 'magazine', 'plain', 'fresh', 'warm'],
   tech: ['tech', 'business', 'fresh', 'plain', 'magazine', 'warm'],
   warm: ['warm', 'magazine', 'fresh', 'plain', 'business', 'tech'],
@@ -55,8 +55,8 @@ const AFFINITY: Record<OfficialStyleId, OfficialStyleId[]> = {
 
 export type CategoryHint = { slug?: string | null; name?: string | null } | string | null | undefined;
 
-/** The best official style for a category (slug or name), or `plain` when nothing matches. */
-export function bestStyleFor(category: CategoryHint, text = ''): OfficialStyleId {
+/** The best official look for a category (slug or name), or `plain` when nothing matches. */
+export function bestLookFor(category: CategoryHint, text = ''): OfficialLookId {
   const slug = typeof category === 'string' ? category : category?.slug;
   const name = typeof category === 'string' ? category : category?.name;
   const bySlug = slug ? SLUG_SKIN[slug.trim().toLowerCase()] : undefined;
@@ -70,10 +70,14 @@ export function bestStyleFor(category: CategoryHint, text = ''): OfficialStyleId
 }
 
 /**
- * Three official styles for a note, best first: by its category (slug / name), else by the title and an
+ * Three official looks for a note, best first: by its category (slug / name), else by the title and an
  * excerpt of the text. Unknown everything → 素雅默认, 简约商务, 文艺暖.
  */
-export function recommendStyles(category: CategoryHint, text = '', count = 3): Style[] {
-  const best = bestStyleFor(category, text);
-  return AFFINITY[best].slice(0, count).map((id) => OFFICIAL_STYLES[id]);
+export function recommendTemplates(category: CategoryHint, text = '', count = 3): NoteTemplate[] {
+  const best = bestLookFor(category, text);
+  return AFFINITY[best].slice(0, count).map((id) => OFFICIAL_LOOKS[id]);
 }
+
+/** r9 names, kept one round. */
+export const bestStyleFor = bestLookFor;
+export const recommendStyles = recommendTemplates;

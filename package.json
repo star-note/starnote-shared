@@ -14,6 +14,10 @@
       "types": "./src/cover/magazine/MagazineCover.tsx",
       "default": "./src/cover/magazine/MagazineCover.tsx"
     },
+    "./templates": {
+      "types": "./src/templates/index.ts",
+      "default": "./src/templates/index.ts"
+    },
     "./styles": {
       "types": "./src/styles/index.ts",
       "default": "./src/styles/index.ts"
