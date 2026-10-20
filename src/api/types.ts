@@ -119,8 +119,24 @@ export interface PromptState {
 export interface UserPreferences {
   /** Platforms ticked 「常用显示」 in the publish panel (registry keys). */
   publish_platforms?: string[];
-  /** 发布时自动翻译成英文，不再逐篇确认. */
+  /** 发布时自动翻译成英文，不再逐篇确认 (default off). */
   auto_translate_en?: boolean;
+  /** r10 AI 发布偏好 (defaults: on, except where noted): 记住上次选的平台. */
+  remember_platforms?: boolean;
+  /** The platforms of the last confirmed AI publish (registry keys), read when `remember_platforms` is on. */
+  last_platforms?: string[];
+  /** AI 自动选分类. */
+  ai_category?: boolean;
+  /** AI 自动生成标签与摘要. */
+  ai_tags_summary?: boolean;
+  /** AI 自动生成封面 (the template cover generator, by title). */
+  ai_cover?: boolean;
+  /** 自动准备多版本 (图集 / 英文版 / 精简版). */
+  auto_versions?: boolean;
+  /** 方案默认折叠为一行摘要. */
+  plan_collapsed?: boolean;
+  /** The first-use preferences card was shown once (default off). */
+  publish_intro_seen?: boolean;
 }
 
 export interface AuthPayload {
