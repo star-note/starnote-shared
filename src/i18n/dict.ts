@@ -29,7 +29,7 @@ export interface Dict {
     h1a: string;
     h1b: string;
     sub: string;
-    /** Three short value tags under the hero line: earn, monetise, build a personal brand. */
+    /** Three short value tags under the hero line: ad revenue share, tips, a personal brand (SPEC-r10 §8.3). */
     perks: string[];
     start: string;
     demo: string;
@@ -135,13 +135,13 @@ const zh: Dict = {
     h1a: '笔落成星，',
     h1b: '文达四海。',
     sub: '在辰记写作，AI 帮你润色、翻译，一键发布到你的博客和海内外平台。',
-    perks: ['创作分成', '广告与打赏', '个人品牌'],
+    perks: ['广告分成', '接受打赏', '个人品牌'],
     start: '免费开始',
     demo: '看示例博客',
     aiH: 'AI 写作，AI 发布',
     aiWrite: '写的时候，AI 续写、改写、摘要、建议标题，生成的都是可编辑的正文，不是另一个聊天框。',
     aiPublish: '发的时候，AI 翻译成英文、日文，按每个平台的格式重新排好，一键发到多个平台。',
-    reachH: '海内外发布，\n顺便赚钱',
+    reachH: '海内外发布，\n文章可开启广告分成',
     reachLead: '同一篇文章，免费翻译，发到',
     reachLive: '已接入',
     reachSoon: '接入中',
@@ -240,7 +240,7 @@ const en: Dict = {
     h1a: 'Write it.',
     h1b: 'Send it everywhere.',
     sub: 'Write in StarNote. AI polishes and translates, then publishes to your blog and platforms worldwide in one click.',
-    perks: ['Creator revenue', 'Ads and tips', 'Your personal brand'],
+    perks: ['Ad revenue share', 'Accept tips', 'Your personal brand'],
     start: 'Start free',
     demo: 'See a demo blog',
     aiH: 'AI writes. AI publishes.',
@@ -248,7 +248,7 @@ const en: Dict = {
       'While you write, AI continues, rewrites, summarises and suggests titles. Everything it produces is editable text, not another chat box.',
     aiPublish:
       'When you publish, AI translates into English and Japanese, reformats for each platform, and sends to several at once.',
-    reachH: 'Publish at home and abroad.\nEarn along the way.',
+    reachH: 'Publish at home and abroad.\nPosts can share ad revenue.',
     reachLead: 'One post, translated for free, sent to',
     reachLive: 'live',
     reachSoon: 'coming',

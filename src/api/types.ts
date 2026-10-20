@@ -36,6 +36,84 @@ export interface User {
   preferences?: UserPreferences;
   /** 「用我的发布反馈改进规则」(SPEC-r9-compliance-learning §5); default on. */
   learn_from_feedback?: boolean;
+  /** SPEC-r10: 辰记 Pro until when (a paid order extends it); null = free or no expiry. */
+  plan_expires_at?: string | null;
+  /** SPEC-r10 §5 / §11: `cn` = only mainland AI models, `global` = overseas models allowed. */
+  ai_region?: 'cn' | 'global';
+  /** SPEC-r10 §7: the first-login guide was shown (or skipped); null = show it once. */
+  onboarding_done_at?: string | null;
+}
+
+/** SPEC-r10 §6 / §11: outbound publishes this month vs the plan's limit (`GET /me/publish-quota`). */
+export interface PublishQuota {
+  period: string;
+  used: number;
+  limit: number;
+  remaining: number;
+  /** Pro: shown as 「不限」 (the limit is only a hard cap against abuse). */
+  unlimited: boolean;
+  plan: 'free' | 'pro';
+}
+
+/** `GET /me/plan` and `dashboard.plan` (SPEC-r10 §1.3): the plan in force and its limits. */
+export interface PlanSummary {
+  plan: 'free' | 'pro';
+  label: string;
+  expires_at: string | null;
+  /** The account had Pro and it ran out. */
+  expired: boolean;
+  monthly_grant: number;
+  publish_limit: number;
+  publish_unlimited: boolean;
+  storage_quota: number;
+  /** 分: pro_month / pro_year / credits_500 / credits_2000. */
+  prices: Record<string, number>;
+  payment_provider: 'mock' | string;
+}
+
+export type OrderKind = 'pro_month' | 'pro_year' | 'credits_500' | 'credits_2000';
+export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled';
+
+/** `POST /me/orders`: an order plus how to pay it (`mock` = confirm in the app; later `qr` / `redirect`). */
+export interface Order {
+  id: string;
+  kind: OrderKind;
+  label: string;
+  amount_cents: number;
+  currency: string;
+  provider: string;
+  status: OrderStatus;
+  provider_ref: string | null;
+  created_at: string;
+  paid_at: string | null;
+  fulfilled_at: string | null;
+  checkout?: { kind: 'mock' | 'qr' | 'redirect'; payload: Record<string, unknown> };
+  /** After a confirmation: the user with the plan now in force. */
+  user?: User;
+}
+
+/** `GET /me/revenue` (SPEC-r10 §2.7 / §11; read-only in 阶段 A). */
+export interface RevenueSummary {
+  currency: string;
+  balance_cents: number;
+  pending_cents: number;
+  paid_cents: number;
+  by_source: { source: string; amount_cents: number }[];
+  threshold_cents: number;
+  payouts_per_month: number;
+  hold_months: number;
+  verified: boolean;
+  verified_at: string | null;
+  can_request: boolean;
+  blockers: ('verify' | 'threshold' | 'monthly')[];
+  ledger: { id: string; source: string; amount_cents: number; month: string; status: string; note: string; created_at: string }[];
+  payouts: { id: string; amount_cents: number; month: string; status: string; created_at: string; paid_at: string | null }[];
+}
+
+/** `GET /me/prompts` (SPEC-r10 §7.4): guides the user closed, by key. */
+export interface PromptState {
+  dismissed: Record<string, string>;
+  onboarding_done_at: string | null;
 }
 
 export interface UserPreferences {
@@ -547,7 +625,10 @@ export interface Dashboard {
   platforms: { key: string; label: string; state: 'connected' | 'desktop_required' | 'unbound' }[];
   todos: { type: string; count: number; text: string; link: string }[];
   storage: { used: number; quota: number };
-  ai: { used: number; quota: number };
+  ai: { used: number; quota: number; balance?: number; activated?: boolean };
+  /** SPEC-r10: outbound publishes this month and the plan in force (older APIs: missing). */
+  publish?: PublishQuota;
+  plan?: PlanSummary;
 }
 
 export type GroupVisibility = 'private' | 'public';

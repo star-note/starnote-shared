@@ -6,9 +6,15 @@ import type {
   HandleCheck,
   MeActivity,
   MyCategoryCount,
+  Order,
+  OrderKind,
   Overview,
+  PlanSummary,
+  PromptState,
   PublishQueuePage,
   PublishQueueStatus,
+  PublishQuota,
+  RevenueSummary,
   User,
   UserPreferences,
   Visibility,
@@ -53,8 +59,13 @@ export const meApi = {
       ? (res as HandleCheck)
       : null;
   },
-  update: (body: { name?: string; avatar_asset_hash?: string | null; handle?: string; learn_from_feedback?: boolean }) =>
-    api.patch<User>('/me', body),
+  update: (body: {
+    name?: string;
+    avatar_asset_hash?: string | null;
+    handle?: string;
+    learn_from_feedback?: boolean;
+    ai_region?: 'cn' | 'global';
+  }) => api.patch<User>('/me', body),
   /** r9: `PATCH /me/preferences` — only the keys sent change; the whole user comes back. */
   updatePreferences: (body: UserPreferences) => api.patch<User>('/me/preferences', body),
   /**
@@ -99,4 +110,31 @@ export const meApi = {
     softItems<MyCategoryCount>(
       await api.get<MyCategoryCount[] | unknown>('/me/publications/categories', SOFT),
     ),
+
+  // ---- SPEC-r10 商业化 阶段 A ----
+
+  /** §7.4: guides the user closed; `null` on an older API (every guide then shows). */
+  prompts: async (): Promise<PromptState | null> => {
+    const res = (await api.get<PromptState | unknown>('/me/prompts', SOFT).catch(() => null)) as unknown;
+    return res && typeof res === 'object' && (res as PromptState).dismissed ? (res as PromptState) : null;
+  },
+  dismissPrompt: (key: string) => api.post<PromptState>(`/me/prompts/${encodeURIComponent(key)}/dismiss`),
+  onboardingDone: () => api.post<PromptState>('/me/onboarding/done'),
+  /** §6 / §11: outbound publishes this month; `null` on an older API (no limit shown). */
+  publishQuota: async (): Promise<PublishQuota | null> => {
+    const res = (await api.get<PublishQuota | unknown>('/me/publish-quota', SOFT).catch(() => null)) as unknown;
+    return res && typeof res === 'object' && typeof (res as PublishQuota).limit === 'number'
+      ? (res as PublishQuota)
+      : null;
+  },
+  /** Hand-offs the user confirmed (分享跳转 / 发布台): one per platform; 42902 when the month is used up. */
+  countPublish: (platforms: string[]) => api.post<PublishQuota>('/me/publish-count', { platforms }),
+  plan: () => api.get<PlanSummary>('/me/plan'),
+  planNotify: (email?: string) => api.post<{ email: string }>('/me/plan/notify', email ? { email } : {}),
+  revenue: () => api.get<RevenueSummary>('/me/revenue'),
+  orders: async () => softItems<Order>(await api.get<{ items: Order[] } | unknown>('/me/orders', SOFT)),
+  createOrder: (kind: OrderKind) => api.post<Order>('/me/orders', { kind }),
+  /** `PAYMENT_PROVIDER=mock` only: the simulated outcome. */
+  mockConfirmOrder: (id: string, result: 'success' | 'fail') =>
+    api.post<Order>(`/me/orders/${id}/mock-confirm`, { result }),
 };

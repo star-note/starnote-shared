@@ -44,7 +44,7 @@ async function failure(res: Response): Promise<Error> {
   } catch {
     /* not json */
   }
-  if (res.status === 429 || code === QUOTA_CODE) return new AiPointsError(message || 'AI 点数不够了，充值或等下月重置后再试');
+  if (res.status === 429 || code === QUOTA_CODE) return new AiPointsError(message || 'AI 点不足，升级 Pro 或等下月再送');
   return new Error(message || `AI 暂时不可用（${res.status}）`);
 }
 
@@ -68,7 +68,7 @@ export async function callFeature(
   if (!res.ok) throw await failure(res);
   const body = (await res.json()) as { code?: number; message?: string; data?: { text?: string }; text?: string };
   if (body && typeof body.code === 'number' && body.code !== 0) {
-    if (body.code === QUOTA_CODE) throw new AiPointsError(body.message || 'AI 点数不够了');
+    if (body.code === QUOTA_CODE) throw new AiPointsError(body.message || 'AI 点不足');
     throw new Error(body.message || 'AI 暂时不可用');
   }
   return body?.data?.text ?? body?.text ?? '';

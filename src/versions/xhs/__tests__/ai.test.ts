@@ -117,7 +117,7 @@ describe('generateXhsContent', () => {
     expect(r.content.topics.length).toBeGreaterThan(0);
 
     const broke: AiCaller = async () => {
-      throw new AiPointsError('点数不够');
+      throw new AiPointsError('AI 点不足');
     };
     await expect(generateXhsContent({ title: 't', doc: ARTICLE }, { ai: true, call: broke })).rejects.toBeInstanceOf(AiPointsError);
 

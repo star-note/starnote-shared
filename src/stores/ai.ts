@@ -10,7 +10,9 @@ import { aiApi, type AiStatus } from '../api/ai';
  * rules (title from the note, summary from the first paragraph, category chosen by hand).
  *
  * `enabled = serverAvailable && activated` (SPEC-r9-ai-billing): the API must offer AI (a provider key or mock) and
- * the signed-in user must have activated it (accepted the 《AI 功能说明》). `balance` is the user's AI credits.
+ * the signed-in user must have activated it (accepted the 《AI 功能说明》). `balance` is the user's AI credits;
+ * `monthlyGrant` / `used` (SPEC-r10 §7) feed the 80% and 用尽 notices, `plan` / `region` the Pro badge and the
+ * model region.
  */
 interface AiState {
   ready: boolean;
@@ -20,13 +22,25 @@ interface AiState {
   activated: boolean;
   /** Remaining AI credits (null until known). */
   balance: number | null;
+  /** This month's grant and what was used of it (null on an older API). */
+  monthlyGrant: number | null;
+  used: number | null;
+  plan: 'free' | 'pro' | null;
+  region: 'cn' | 'global' | null;
   enabled: boolean;
   features: string[];
   load(): Promise<void>;
   /** Ask the API again (after sign-in / activation / a call that spent credits). */
   reload(): Promise<void>;
   /** A fresh balance from somewhere else (usage page, estimate, activation). */
-  setCredits(patch: { balance?: number | null; activated?: boolean }): void;
+  setCredits(patch: {
+    balance?: number | null;
+    activated?: boolean;
+    monthlyGrant?: number | null;
+    used?: number | null;
+    plan?: 'free' | 'pro' | null;
+    region?: 'cn' | 'global' | null;
+  }): void;
   /** Re-read `balance` / `activated` after a call; a failed request changes nothing (AI stays as it was). */
   refreshCredits(): Promise<void>;
 }
@@ -42,7 +56,7 @@ export function onAiEnabledChange(fn: (enabled: boolean) => void) {
 
 function settle(s: AiStatus | null) {
   const serverAvailable = Boolean(s?.enabled);
-  // an API that predates 「开通 AI」 (or an anonymous visitor) answers no `activated`: counts as activated
+  // an API that predates 「开启 AI 功能」 (or an anonymous visitor) answers no `activated`: counts as activated
   const activated = s ? s.activated !== false : false;
   const enabled = serverAvailable && activated;
   useAiStore.setState({
@@ -51,6 +65,10 @@ function settle(s: AiStatus | null) {
     activated,
     enabled,
     balance: typeof s?.balance === 'number' ? s.balance : null,
+    monthlyGrant: typeof s?.monthly_grant === 'number' ? s.monthly_grant : null,
+    used: typeof s?.used_this_period === 'number' ? s.used_this_period : null,
+    plan: s?.plan ?? null,
+    region: s?.region ?? null,
     features: serverAvailable ? (s?.features ?? []) : [],
   });
   setAiCommandsEnabled(enabled);
@@ -61,6 +79,10 @@ export const useAiStore = create<AiState>((set, get) => ({
   serverAvailable: false,
   activated: false,
   balance: null,
+  monthlyGrant: null,
+  used: null,
+  plan: null,
+  region: null,
   enabled: false,
   features: [],
   load: () => {
@@ -78,12 +100,20 @@ export const useAiStore = create<AiState>((set, get) => ({
     if (!get().serverAvailable) return;
     const s = await aiApi.status().catch(() => null);
     if (s?.enabled && typeof s.activated === 'boolean')
-      get().setCredits({ activated: s.activated, balance: s.balance ?? null });
+      get().setCredits({
+        activated: s.activated,
+        balance: s.balance ?? null,
+        monthlyGrant: s.monthly_grant ?? null,
+        used: s.used_this_period ?? null,
+        plan: s.plan ?? null,
+        region: s.region ?? null,
+      });
   },
   setCredits: (patch) => {
     const activated = patch.activated ?? get().activated;
     const enabled = get().serverAvailable && activated;
-    set({ ...(patch.balance !== undefined ? { balance: patch.balance } : {}), activated, enabled });
+    const { activated: _a, balance, ...rest } = patch;
+    set({ ...(balance !== undefined ? { balance } : {}), ...rest, activated, enabled });
     setAiCommandsEnabled(enabled);
   },
 }));
@@ -94,27 +124,34 @@ useAuthStore.subscribe((state, prev) => {
   if (state.user?.id !== prev.user?.id && useAiStore.getState().ready) void useAiStore.getState().reload();
 });
 
-/** `{ready, enabled, serverAvailable, activated, balance}`; triggers the one status request on first use. */
+/** `{ready, enabled, serverAvailable, activated, balance, monthlyGrant, plan}`; triggers the one status request on first use. */
 export function useAiStatus(): {
   ready: boolean;
   enabled: boolean;
   serverAvailable: boolean;
   activated: boolean;
   balance: number | null;
+  monthlyGrant: number | null;
+  plan: 'free' | 'pro' | null;
 } {
   const ready = useAiStore((s) => s.ready);
   const enabled = useAiStore((s) => s.enabled);
   const serverAvailable = useAiStore((s) => s.serverAvailable);
   const activated = useAiStore((s) => s.activated);
   const balance = useAiStore((s) => s.balance);
+  const monthlyGrant = useAiStore((s) => s.monthlyGrant);
+  const plan = useAiStore((s) => s.plan);
   if (!ready) void useAiStore.getState().load();
-  return { ready, enabled, serverAvailable, activated, balance };
+  return { ready, enabled, serverAvailable, activated, balance, monthlyGrant, plan };
 }
 
 /** Test seam. `enabled` alone implies a server that offers AI and an activated user. */
 export function resetAiStore(
   state: Partial<
-    Pick<AiState, 'ready' | 'enabled' | 'features' | 'serverAvailable' | 'activated' | 'balance'>
+    Pick<
+      AiState,
+      'ready' | 'enabled' | 'features' | 'serverAvailable' | 'activated' | 'balance' | 'monthlyGrant' | 'used' | 'plan' | 'region'
+    >
   > = {},
 ) {
   inflight = state.ready ? Promise.resolve() : null;
@@ -125,6 +162,10 @@ export function resetAiStore(
     ready: false,
     features: [],
     balance: null,
+    monthlyGrant: null,
+    used: null,
+    plan: null,
+    region: null,
     ...state,
     serverAvailable,
     activated,
