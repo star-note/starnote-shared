@@ -76,7 +76,30 @@ export const materialsApi = {
     materialLicenseApi.adminList(status, page),
   reviewLicense: (id: string, action: 'approve' | 'reject', note?: string) =>
     materialLicenseApi.review(id, action, note),
+  /** 点赞 counts for official (`officialLikeKey`), 开源 and group materials; targets I can't see are left out. */
+  likes: async (targets: string[]): Promise<Record<string, MaterialLike>> => {
+    if (!targets.length) return {};
+    const res = await api
+      .get<{ items?: Record<string, MaterialLike> }>('/materials/likes', {
+        ...SOFT,
+        params: { targets: targets.join(',') },
+      })
+      .catch(() => null);
+    return res?.items ?? {};
+  },
+  like: (target: string, liked: boolean) =>
+    liked
+      ? api.put<MaterialLike>(`/materials/likes/${encodeURIComponent(target)}`)
+      : api.delete<MaterialLike>(`/materials/likes/${encodeURIComponent(target)}`),
 };
+
+export interface MaterialLike {
+  count: number;
+  liked: boolean;
+}
+
+/** The like target of a shipped official material. */
+export const officialLikeKey = (id: string) => `official:${id}`;
 
 /* ---------- official materials: static files shipped with the web app ---------- */
 

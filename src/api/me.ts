@@ -130,6 +130,8 @@ export const meApi = {
   /** Hand-offs the user confirmed (分享跳转 / 发布台): one per platform; 42902 when the month is used up. */
   countPublish: (platforms: string[]) => api.post<PublishQuota>('/me/publish-count', { platforms }),
   plan: () => api.get<PlanSummary>('/me/plan'),
+  /** My uploads against the plan's storage (`quota_bytes`). */
+  storage: () => api.get<{ used_bytes: number; quota_bytes: number; assets: number }>('/me/storage'),
   planNotify: (email?: string) => api.post<{ email: string }>('/me/plan/notify', email ? { email } : {}),
   revenue: () => api.get<RevenueSummary>('/me/revenue'),
   orders: async () => softItems<Order>(await api.get<{ items: Order[] } | unknown>('/me/orders', SOFT)),
