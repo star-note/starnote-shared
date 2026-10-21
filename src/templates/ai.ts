@@ -1,7 +1,15 @@
 import type { NoteTemplate } from './model';
 import { OFFICIAL_LOOK_LIST } from './official';
-import { recommendTemplates } from './recommend';
-import type { CategoryHint } from './recommend';
+import {
+  ensureContentPick,
+  type NoteSignals,
+  rankTemplates,
+  type RecommendOptions,
+  recommendForNote,
+  recommendTemplates,
+  type TemplatePick,
+  wearsContentTemplate,
+ type CategoryHint } from './recommend';
 
 /**
  * AI recommendation (feature `style.suggest`, a light model; CONTRACTS-r9 §7 — the feature key is unchanged
@@ -12,7 +20,8 @@ import type { CategoryHint } from './recommend';
 
 export const TEMPLATE_MARKER = '[sn-style]';
 export const TEMPLATE_SUGGEST_FEATURE = 'style.suggest';
-export const TEMPLATE_SUGGEST_MAX_TOKENS = 128;
+/** Three ids and a short reason each (r10); the API's `style.suggest` cap matches. */
+export const TEMPLATE_SUGGEST_MAX_TOKENS = 320;
 
 export interface TemplateSuggestInput {
   title: string;
@@ -86,6 +95,135 @@ export function fillSuggestion(
     if (!out.some((o) => o.id === match.id)) out.push(match);
   }
   return out.slice(0, 3);
+}
+
+// ------------------------------------------------------------------ r10: by content, with a reason per pick
+
+export interface TemplateRecommendInput extends RecommendOptions {
+  signals: NoteSignals;
+  /** Every template the user may wear: the official fourteen + 我的 + the groups'. */
+  candidates: readonly NoteTemplate[];
+}
+
+const REASON_MAX = 40;
+
+/** What the model may choose from: everything offered except the note's current template. */
+export function recommendCandidates(input: Pick<TemplateRecommendInput, 'candidates' | 'current'>): NoteTemplate[] {
+  return input.candidates.filter((t) => t.id !== input.current?.id);
+}
+
+/**
+ * The `[sn-style]` prompt (r10): every candidate's id / name / 用途 / kind / 简述, and the note's title, opening and
+ * shape. The model answers `{"picks":[{"id","reason"}×3]}`; at least one pick must be a content template unless the
+ * note already wears one.
+ */
+export function buildTemplateRecommendPrompt(input: TemplateRecommendInput): { system: string; user: string } {
+  const candidates = recommendCandidates(input);
+  const needContent = !wearsContentTemplate(input.current) && candidates.some((t) => t.kind === 'content');
+  const system = [
+    `${TEMPLATE_MARKER} 你是辰记的排版顾问。按文章的内容和结构，从候选模板里挑 3 款最合适的，最合适的放最前。`,
+    'kind=content 的模板是一整套版式（卡片、步骤、清单、问答等）加配色；kind=look 只换配色和标题样式，不动结构。先看文章是写什么的（周报、教程、读书、访谈……）和它的结构，再挑模板。',
+    needContent ? '3 款里至少 1 款必须是 kind=content。' : '',
+    input.exclude?.length ? `尽量不要再选这些：${input.exclude.join('、')}。` : '',
+    `只能用候选里的 id。只返回 JSON，不要解释：{"picks":[{"id":"…","reason":"一句理由，不超过 ${REASON_MAX - 16} 字"}]}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+  const s = input.signals;
+  const user = JSON.stringify({
+    title: s.title,
+    category: s.category,
+    opening: s.opening.slice(0, 300),
+    structure: { headings: s.headings, lists: s.lists, tables: s.tables, images: s.images, code: s.code, quotes: s.quotes, chars: s.chars },
+    current: input.current ? { id: input.current.id, kind: input.current.kind } : null,
+    exclude: input.exclude ?? [],
+    candidates: candidates.map((t) => ({
+      id: t.id,
+      name: t.name,
+      purpose: t.purpose ?? '',
+      kind: t.kind,
+      brief: (t.description ?? '').slice(0, 48),
+    })),
+  });
+  return { system, user };
+}
+
+/**
+ * The model's picks: only candidate ids, in order, no duplicates, at most three, each with its reason (trimmed);
+ * the r9 `{"styles":[…],"reason"}` answer is read too. `null` when nothing usable came back.
+ */
+export function parseTemplatePicks(text: string, candidates: readonly NoteTemplate[]): TemplatePick[] | null {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start < 0 || end <= start) return null;
+  let data: unknown;
+  try {
+    data = JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+  const obj = (data ?? {}) as { picks?: unknown; styles?: unknown; templates?: unknown; reason?: unknown };
+  const shared = typeof obj.reason === 'string' ? obj.reason : '';
+  const raw: { id: unknown; reason?: unknown }[] = Array.isArray(obj.picks)
+    ? obj.picks.map((p) => (typeof p === 'string' ? { id: p } : ((p ?? {}) as { id: unknown; reason?: unknown })))
+    : Array.isArray(obj.styles ?? obj.templates)
+      ? ((obj.styles ?? obj.templates) as unknown[]).map((id) => ({ id, reason: shared }))
+      : [];
+  const byId = new Map(candidates.map((t) => [t.id, t]));
+  const out: TemplatePick[] = [];
+  for (const r of raw) {
+    const t = typeof r.id === 'string' ? byId.get(r.id) : undefined;
+    if (!t || out.some((o) => o.template.id === t.id)) continue;
+    const reason = typeof r.reason === 'string' ? r.reason.trim().slice(0, REASON_MAX) : '';
+    out.push({ template: t, reason });
+    if (out.length === 3) break;
+  }
+  return out.length ? out : null;
+}
+
+/**
+ * The model's picks completed by the rules: missing reasons and missing picks come from the rule ranking (so there
+ * are always three when three exist), and the 「至少 1 款内容模板」 rule holds whatever the model said.
+ */
+export function completeTemplatePicks(picked: TemplatePick[] | null, input: TemplateRecommendInput): TemplatePick[] {
+  const rules = recommendForNote(input.signals, input.candidates, input, 3);
+  const ranked = rankTemplates(input.signals, recommendCandidates(input));
+  const ruleReason = (id: string) =>
+    [...ranked.contents, ...ranked.looks].find((p) => p.template.id === id)?.reason ?? '';
+  const out: TemplatePick[] = (picked ?? [])
+    .filter((p) => p.template.id !== input.current?.id)
+    .map((p) => ({ template: p.template, reason: p.reason || ruleReason(p.template.id) }));
+  for (const r of [...rules, ...ranked.contents, ...ranked.looks]) {
+    if (out.length >= 3) break;
+    if (!out.some((o) => o.template.id === r.template.id)) out.push(r);
+  }
+  return ensureContentPick(out.slice(0, 3), ranked.contents, input.current);
+}
+
+export interface TemplateRecommendation {
+  picks: TemplatePick[];
+  /** `ai` when the model's answer was used (even padded), `rules` otherwise. */
+  source: 'ai' | 'rules';
+}
+
+/**
+ * 「AI 推荐 3 款」 end to end: with a caller (AI on) the model picks, the rules complete and check; without one (AI off,
+ * no points spent) or when the call fails, the rules alone. Errors other than a failed call never surface.
+ */
+export async function recommendTemplatesForNote(
+  input: TemplateRecommendInput,
+  call?: ((prompt: { system: string; user: string; maxTokens: number }) => Promise<string>) | null,
+): Promise<TemplateRecommendation> {
+  if (call) {
+    try {
+      const text = await call({ ...buildTemplateRecommendPrompt(input), maxTokens: TEMPLATE_SUGGEST_MAX_TOKENS });
+      const picked = parseTemplatePicks(text, recommendCandidates(input));
+      if (picked) return { picks: completeTemplatePicks(picked, input), source: 'ai' };
+    } catch {
+      /* the rules answer below */
+    }
+  }
+  return { picks: recommendForNote(input.signals, input.candidates, input, 3), source: 'rules' };
 }
 
 /** r9 names, kept one round. */
