@@ -26,6 +26,24 @@ function deps(
 describe('upload pipeline', () => {
   const png = new File(['x'.repeat(100)], 'a.png', { type: 'image/png' });
 
+  it('reports progress from 0 to 1, the transfer filling most of the bar', async () => {
+    const seen: number[] = [];
+    const d = deps({
+      presign: vi.fn(async () => ({
+        exists: false,
+        upload: { url: '/api/v1/assets/upload/abc123', method: 'PUT', headers: {} },
+      })) as never,
+      put: vi.fn(async (_u: string, _b: Blob, _h: Record<string, string>, onProgress?: (f: number) => void) => {
+        onProgress?.(0.5);
+        onProgress?.(1);
+      }),
+    });
+    await uploadImage(png, d, { onProgress: (f) => seen.push(f) });
+    expect(seen.at(-1)).toBe(1);
+    expect(seen).toEqual([...seen].sort((a, b) => a - b));
+    expect(seen.some((f) => Math.abs(f - 0.55) < 1e-9)).toBe(true);
+  });
+
   it('compresses, hashes, presigns and skips PUT/complete when the asset exists', async () => {
     const d = deps();
     const asset = await uploadImage(png, d);
@@ -55,6 +73,7 @@ describe('upload pipeline', () => {
       '/api/v1/assets/upload/abc123',
       expect.any(Blob),
       expect.objectContaining({ 'Content-Type': 'image/webp', 'x-test': '1' }),
+      expect.any(Function),
     );
     expect(d.complete).toHaveBeenCalledWith('abc123');
   });

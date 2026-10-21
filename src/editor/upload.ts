@@ -10,7 +10,13 @@ export interface UploadDeps {
     width?: number;
     height?: number;
   }): Promise<PresignResult>;
-  put(url: string, body: Blob, headers: Record<string, string>): Promise<void>;
+  /** `onProgress` gets the sent fraction (0–1) where the transport can report it. */
+  put(
+    url: string,
+    body: Blob,
+    headers: Record<string, string>,
+    onProgress?: (fraction: number) => void,
+  ): Promise<void>;
   complete(hash: string): Promise<Asset>;
   dimensions?(blob: Blob): Promise<{ width: number; height: number } | undefined>;
 }
@@ -30,20 +36,39 @@ export async function sha256Hex(blob: Blob): Promise<string> {
     .join('');
 }
 
+/** Share of the bar each stage fills: the transfer is most of it, the rest is local work and the server's check. */
+const STAGE = { prepared: 0.15, sent: 0.95 } as const;
+
 /**
  * Select → compress → hash → presign → (PUT) → complete → url.
- * Pure orchestration; browser APIs come in through `deps` so it is testable.
+ * Pure orchestration; browser APIs come in through `deps` so it is testable. `onProgress` gets 0–1 over the whole
+ * upload (a picture the server already has jumps to 1).
  */
-export async function uploadImage(file: File, deps: UploadDeps): Promise<Asset> {
+export async function uploadImage(
+  file: File,
+  deps: UploadDeps,
+  opts: { onProgress?(fraction: number): void } = {},
+): Promise<Asset> {
+  const report = opts.onProgress ?? (() => {});
   if (!file.type.startsWith('image/')) throw new Error('只支持图片文件');
+  report(0.02);
   const blob = shouldCompress(file.type) ? await deps.compress(file) : file;
   if (blob.size > MAX_IMAGE_BYTES) throw new Error('图片超过 10 MB 上限');
   const mime = blob.type || file.type;
   const hash = await deps.sha256(blob);
   const dims = await deps.dimensions?.(blob);
   const presigned = await deps.presign({ hash, size: blob.size, mime, ...dims });
-  if (presigned.exists) return presigned.asset;
+  if (presigned.exists) {
+    report(1);
+    return presigned.asset;
+  }
   if (!presigned.upload) throw new Error('服务端未返回上传地址');
-  await deps.put(presigned.upload.url, blob, { 'Content-Type': mime, ...presigned.upload.headers });
-  return deps.complete(hash);
+  report(STAGE.prepared);
+  await deps.put(presigned.upload.url, blob, { 'Content-Type': mime, ...presigned.upload.headers }, (f) =>
+    report(STAGE.prepared + (STAGE.sent - STAGE.prepared) * Math.min(1, Math.max(0, f))),
+  );
+  report(STAGE.sent);
+  const asset = await deps.complete(hash);
+  report(1);
+  return asset;
 }
