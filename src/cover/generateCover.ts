@@ -9,6 +9,7 @@
 import { fitTitle, type Measure } from './fitText';
 import { createRng } from './rng';
 import { type CoverStyle, COVER_STYLES, VARIANTS } from './styles';
+import { drawWatermark, watermarkCanvas, type WatermarkSpec } from '../watermark/draw';
 
 export type { CoverStyle } from './styles';
 export { COVER_STYLES } from './styles';
@@ -29,6 +30,8 @@ export interface CoverOptions {
   blogName?: string;
   handle?: string;
   size?: CoverSize;
+  /** 辰记水印 (`watermarkPlan` + words); a `frame` band keeps the cover's size (the design is cropped to make room). */
+  watermark?: WatermarkSpec | null;
 }
 
 export const COVER_FONT =
@@ -416,7 +419,13 @@ export function renderCover(opts: CoverOptions): HTMLCanvasElement {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('当前浏览器不支持 Canvas');
   paintCover(ctx, opts);
-  return canvas;
+  const wm = opts.watermark;
+  if (!wm?.plan.enabled) return canvas;
+  if (wm.plan.layout === 'inset') {
+    drawWatermark(ctx, { w, h }, wm);
+    return canvas;
+  }
+  return watermarkCanvas({ source: canvas, width: w, height: h }, { ...wm, keepSize: true });
 }
 
 /** PNG blob of the cover. */

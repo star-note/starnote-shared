@@ -20,6 +20,9 @@ export interface AiStatus {
   terms_version?: string;
 }
 
+/** The 《AI 功能说明》 version 「开启 AI 功能」 accepts (web settings page and the phone's in-place sheet). */
+export const AI_TERMS_VERSION = '2026-11';
+
 /** SPEC-r10 §5 / §11: `cn` = only mainland models, `global` = overseas models allowed. */
 export type AiRegion = 'cn' | 'global';
 

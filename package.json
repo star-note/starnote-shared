@@ -22,6 +22,10 @@
       "types": "./src/styles/index.ts",
       "default": "./src/styles/index.ts"
     },
+    "./watermark": {
+      "types": "./src/watermark/index.ts",
+      "default": "./src/watermark/index.ts"
+    },
     "./*": {
       "types": "./src/*.ts",
       "default": "./src/*.ts"

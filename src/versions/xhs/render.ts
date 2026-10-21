@@ -1,5 +1,7 @@
 import { type PaintImage, type PaintOptions, paintXhsCard, XHS_CARD_SIZE } from './templates';
 import type { XhsCard } from '../../api/versions';
+import { drawWatermark } from '../../watermark/draw';
+import { watermarkLayout } from '../../watermark/layout';
 
 /**
  * Canvas plumbing for the card templates: decode a picture once, paint a card at any scale, export PNG.
@@ -64,14 +66,19 @@ export function paintToCanvas(
   if (!ctx) throw new Error('当前浏览器不支持 Canvas');
   ctx.setTransform(k, 0, 0, k, 0, 0);
   ctx.clearRect(0, 0, frame.w, frame.h);
+  const wm = typeof opts.watermark === 'object' ? opts.watermark : null;
+  // 画幅边框: the card is laid out on a shorter frame and the band fills the rest (the export stays 3:4)
+  const band = wm?.plan.enabled && wm.plan.layout === 'frame' ? watermarkLayout(frame, wm.plan).band : 0;
+  const area = { w: frame.w, h: frame.h - band };
   paintXhsCard(ctx, card, {
-    w: frame.w,
-    h: frame.h,
+    w: area.w,
+    h: area.h,
     index: opts.index,
     total: opts.total,
     image: opts.image ?? null,
-    watermark: opts.watermark,
+    watermark: band ? undefined : opts.watermark,
   });
+  if (band && wm) drawWatermark(ctx, area, { ...wm, band });
   return canvas;
 }
 
