@@ -245,7 +245,7 @@ describe('drawWatermark', () => {
       date: new Date(2026, 9, 21),
     });
     const all = r.joined();
-    for (const s of ['STARNOTE', '@ludejun', '写在十月的一封信', '2026.10.21'])
+    for (const s of ['StarNote', '@ludejun', '写在十月的一封信', '2026.10.21'])
       expect(all).toContain(s);
     for (const t of r.texts) {
       expect(t.x).toBeGreaterThanOrEqual(m.margin - 0.5);
@@ -289,10 +289,10 @@ describe('drawWatermark', () => {
     expect(r.rects.filter((x) => x.w === x.h && x.w <= 4).length).toBe(0);
   });
 
-  it('English wording: Shot on STARNOTE', () => {
+  it('English wording: Shot on + the StarNote lockup', () => {
     const r = recorder(PHOTO.w, PHOTO.h);
     drawWatermark(r.ctx, PHOTO, { plan: textPlan(), handle: 'ludejun', lang: 'en' });
-    expect(r.joined()).toContain('Shot on STARNOTE');
+    expect(r.joined()).toMatch(/Shot on\s*StarNote/);
   });
 
   it('frame paints a band under the picture and centres the line in it', () => {

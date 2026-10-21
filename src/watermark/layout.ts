@@ -3,7 +3,7 @@ import { encodeQr, type QrCode, type QrEcc, qrSize, qrVersionFor, utf8Bytes } fr
 /**
  * 辰记水印 (r10): a fine information strip like the ones high-end cameras print under a photo. Two looks:
  *
- * - `camera` — left: the mark + 「STARNOTE」 (wide-tracked caps) │ @handle; right: an optional item (a title / column)
+ * - `camera` — left: the official StarNote lockup │ @handle; right: an optional item (a title / column)
  *   │ the date 2026.10.21 and a small QR code (the post's short link, else the author's blog);
  * - `text` — one quiet line 「辰记 │ @handle │ 2026.10.21」 with a tiny mark, for platforms that forbid QR codes or
  *   导流 (小红书、抖音…), small pictures, or when the author turned the code off. It never carries a link.
