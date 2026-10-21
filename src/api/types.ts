@@ -852,6 +852,8 @@ export interface Group {
   can_publish_queue?: boolean;
   /** Items waiting for a 发布员; only when I may see the queue. */
   publish_queue_count?: number;
+  /** SPEC-r3 §E: the platform-run 「辰记官方」 group (read-only for members); use `isOfficialGroup`. */
+  is_official?: boolean;
   created_at?: string;
 }
 
