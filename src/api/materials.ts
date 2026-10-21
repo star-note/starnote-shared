@@ -230,3 +230,23 @@ export const materialLicenseApi = {
       note: note || undefined,
     }),
 };
+
+/** A 开源 search hit as the `Material` that `insertPicked` reads (url, title, size). */
+export function searchItemAsMaterial(m: MaterialSearchItem): Material {
+  return {
+    id: m.id,
+    owner_type: 'user',
+    owner_id: '',
+    asset_hash: m.url.split('/').pop() ?? '',
+    url: m.url,
+    title: m.title,
+    tags: m.tags,
+    kind: m.kind,
+    mime: '',
+    width: m.width,
+    height: m.height,
+    size: 0,
+    created_at: '',
+    can_edit: false,
+  };
+}
