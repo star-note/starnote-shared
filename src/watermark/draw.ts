@@ -8,7 +8,7 @@ import {
   type WatermarkMetrics,
   type WatermarkPlan,
 } from './layout';
-import { MARK } from '../brand/paths.gen';
+import { LOCKUP, MARK } from '../brand/paths.gen';
 
 /**
  * Paints the watermark planned by `watermarkPlan` on any 2D context — a browser canvas or a Node canvas
@@ -29,7 +29,7 @@ export interface WatermarkContent {
   date?: Date | string | number;
   /** The optional item on the right (a title or a column); cut to 12 characters. */
   meta?: string | null;
-  /** Text line wording: 「辰记」 or 「Shot on STARNOTE」. */
+  /** Text line wording: the 辰记 lockup or 「Shot on」 + the StarNote lockup. */
   lang?: 'zh' | 'en';
 }
 
@@ -148,38 +148,101 @@ function trackedWidth(ctx: Ctx, text: string, track: number): number {
   );
 }
 
-function drawTracked(ctx: Ctx, text: string, x: number, y: number, track: number) {
-  if (!track) {
-    ctx.fillText(text, x, y);
-    return;
-  }
-  let cx = x;
-  for (const c of Array.from(text)) {
-    ctx.fillText(c, cx, y);
-    cx += ctx.measureText(c).width + track;
-  }
+const CJK = /[\u3400-\u9fff\uf900-\ufaff]/;
+
+/**
+ * The alphabetic baseline that puts a run's letters optically on `cy`: the centre of a capital (or, for Chinese, of
+ * a full-width character) — not the em box `textBaseline: 'middle'` centres, which sits Latin capitals and CJK
+ * glyphs at different heights next to the mark. Descenders (j, g, @) hang below as in any set line.
+ */
+export function baselineFor(ctx: Ctx, text: string, cy: number): number {
+  // ascent/descent are measured from the *current* textBaseline, so measure against the one we draw with
+  const prev = ctx.textBaseline;
+  ctx.textBaseline = 'alphabetic';
+  const ref = ctx.measureText(CJK.test(text) ? '辰' : 'H');
+  ctx.textBaseline = prev;
+  const asc = ref.actualBoundingBoxAscent;
+  const desc = ref.actualBoundingBoxDescent;
+  if (typeof asc !== 'number' || typeof desc !== 'number' || !(asc + desc > 0)) return cy;
+  return cy + (asc - desc) / 2;
 }
 
-function drawMark(ctx: Ctx, x: number, cy: number, size: number, color: string) {
-  const [vx, vy, vw] = MARK.small.viewBox.split(/\s+/).map(Number) as [
-    number,
-    number,
-    number,
-    number,
-  ];
+function drawTracked(ctx: Ctx, text: string, x: number, y: number, track: number) {
+  const prev = ctx.textBaseline;
+  const by = baselineFor(ctx, text, y);
+  if (by !== y) ctx.textBaseline = 'alphabetic';
+  if (!track) {
+    ctx.fillText(text, x, by);
+  } else {
+    let cx = x;
+    for (const c of Array.from(text)) {
+      ctx.fillText(c, cx, by);
+      cx += ctx.measureText(c).width + track;
+    }
+  }
+  ctx.textBaseline = prev;
+}
+
+/** Ink box of absolute path data (every coordinate pair; the mark's curves are dense enough for that). */
+function pathYs(d: string): { lo: number; hi: number } {
+  const n = (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (let i = 1; i < n.length; i += 2) {
+    lo = Math.min(lo, n[i]!);
+    hi = Math.max(hi, n[i]!);
+  }
+  return { lo, hi };
+}
+
+/** Centre of the mark's C in its 100-unit space — the line the official lockups set their words on. */
+const BODY = pathYs(MARK.body);
+export const MARK_BODY_MID = (BODY.lo + BODY.hi) / 2;
+/** The small cut's crop width: `markPx` is the drawn width of that crop, as it was for the bare mark. */
+const SMALL_W = Number(MARK.small.viewBox.split(/\s+/)[2]);
+/** Lockup padding around the ink (scripts/brand/compose.mjs `layoutLockup`). */
+const LOCKUP_PAD = 6;
+/** Mark size of the brand item against `metrics.mark` (the bare mark's size). */
+const LOCKUP_SCALE = 1.15;
+
+type LockupLang = keyof typeof LOCKUP;
+
+/**
+ * The official lockup (mark + lettered 辰记 / StarNote, outlines from paths.gen — the same shapes as the header,
+ * the blog and the icons), its C centred on `cy`. Returns the drawn width; without Path2D, a dot and set type.
+ */
+export function lockupWidth(lang: LockupLang, markPx: number): number {
+  return (LOCKUP[lang].plain.w - LOCKUP_PAD * 2) * (markPx / SMALL_W);
+}
+
+function drawLockup(
+  ctx: Ctx,
+  lang: LockupLang,
+  x: number,
+  cy: number,
+  markPx: number,
+  pal: { mark: string; ink: string },
+) {
+  const L = LOCKUP[lang].plain;
+  const k = markPx / SMALL_W;
   ctx.save();
-  ctx.fillStyle = color;
   if (typeof Path2D === 'function') {
-    const k = size / vw;
-    ctx.translate(x, cy - size / 2);
+    ctx.translate(x - LOCKUP_PAD * k, cy - (L.ty + MARK_BODY_MID) * k);
     ctx.scale(k, k);
-    ctx.translate(-vx, -vy);
+    ctx.fillStyle = pal.ink;
+    ctx.fill(new Path2D(L.word));
+    ctx.fillStyle = pal.mark;
+    if (L.accent) ctx.fill(new Path2D(L.accent));
+    ctx.translate(L.tx, L.ty);
     ctx.fill(new Path2D(MARK.small.body));
     ctx.fill(new Path2D(MARK.small.pen), 'evenodd');
   } else {
+    ctx.fillStyle = pal.mark;
     ctx.beginPath();
-    ctx.arc(x + size / 2, cy, size * 0.36, 0, Math.PI * 2);
+    ctx.arc(x + markPx / 2, cy, markPx * 0.36, 0, Math.PI * 2);
     ctx.fill();
+    ctx.fillStyle = pal.ink;
+    drawTracked(ctx, lang === 'en' ? 'StarNote' : '辰记', x + markPx * 1.3, cy, 0);
   }
   ctx.restore();
 }
@@ -246,43 +309,25 @@ function brandItem(
   cy: number,
   pal: Palette,
   family: string,
-  words: 'caps' | 'zh' | 'shot',
+  words: 'zh' | 'en' | 'shot',
 ): Item {
-  const capsSize = m.font * 0.84;
-  const track = capsSize * 0.24;
-  const markGap = m.font * 0.5;
-  let textW = 0;
-  if (words === 'caps') {
-    setFont(ctx, 600, capsSize, family);
-    textW = trackedWidth(ctx, 'STARNOTE', track);
-  } else if (words === 'zh') {
-    setFont(ctx, 600, m.font, family);
-    textW = trackedWidth(ctx, '辰记', m.font * 0.12);
-  } else {
+  const lang: LockupLang = words === 'zh' ? 'zh-CN' : 'en';
+  // the lockup keeps its own proportions (word ≈ 0.4 of the mark); this size sets its word level with the line's text
+  const markPx = m.mark * LOCKUP_SCALE;
+  let lead = 0;
+  if (words === 'shot') {
     setFont(ctx, 300, m.font, family);
-    const shot = ctx.measureText('Shot on ').width;
-    setFont(ctx, 600, capsSize, family);
-    textW = shot + trackedWidth(ctx, 'STARNOTE', track);
+    lead = ctx.measureText('Shot on ').width;
   }
   return {
-    w: m.mark + markGap + textW,
+    w: lead + lockupWidth(lang, markPx),
     draw(x) {
-      drawMark(ctx, x, cy, m.mark, pal.mark);
-      const tx = x + m.mark + markGap;
-      ctx.fillStyle = pal.ink;
-      if (words === 'zh') {
-        setFont(ctx, 600, m.font, family);
-        drawTracked(ctx, '辰记', tx, cy, m.font * 0.12);
-      } else if (words === 'caps') {
-        setFont(ctx, 600, capsSize, family);
-        drawTracked(ctx, 'STARNOTE', tx, cy, track);
-      } else {
+      if (lead) {
+        ctx.fillStyle = pal.ink;
         setFont(ctx, 300, m.font, family);
-        ctx.fillText('Shot on ', tx, cy);
-        const shot = ctx.measureText('Shot on ').width;
-        setFont(ctx, 600, capsSize, family);
-        drawTracked(ctx, 'STARNOTE', tx + shot, cy, track);
+        drawTracked(ctx, 'Shot on ', x, cy, 0);
       }
+      drawLockup(ctx, lang, x + lead, cy, markPx, pal);
     },
   };
 }
@@ -421,12 +466,12 @@ export function drawWatermark(
     return m;
   }
 
-  // camera strip: left = mark STARNOTE │ @handle; right = meta │ date [QR]
+  // camera strip: left = StarNote lockup │ @handle; right = meta │ date [QR]
   const rule = (h: number) => (x: number) =>
     hairline(ctx, x + m.hair / 2, midY, h, m.hair, pal.rule);
   const left = layoutLine(
     [
-      brandItem(ctx, m, midY, pal, family, 'caps'),
+      brandItem(ctx, m, midY, pal, family, 'en'),
       textItem(ctx, handle, m.font, 400, pal.sub, family, midY, m.font * 0.02, 1),
     ],
     m.gap,
@@ -490,7 +535,7 @@ export function drawWatermark(
   return m;
 }
 
-/** 「辰记 │ @handle │ 2026.10.21」 (or 「Shot on STARNOTE │ …」). */
+/** 「辰记 │ @handle │ 2026.10.21」 (or 「Shot on StarNote │ …」). */
 function textLine(
   ctx: Ctx,
   m: WatermarkMetrics,

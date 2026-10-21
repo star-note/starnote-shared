@@ -3,7 +3,7 @@ import { act } from 'react';
 
 import { useI18n } from '../../i18n';
 import { Lockup, Mark } from '../Logo';
-import { BRAND_SKY, LOCKUP } from '../paths.gen';
+import { BRAND_SKY, LOCKUP, MARK } from '../paths.gen';
 
 describe('brand logo', () => {
   afterEach(() => act(() => useI18n.getState().setLang('zh-CN')));
@@ -77,5 +77,22 @@ describe('brand logo', () => {
     expect(firstStop(dark)).toBe(BRAND_SKY.dark[0][1]);
     expect(light.querySelectorAll('clipPath').length).toBe(1);
     expect(light.querySelectorAll('.sn-swell').length).toBe(3);
+  });
+});
+
+describe('lockup geometry (paths.gen)', () => {
+  const ys = (d: string) => {
+    const n = (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number).filter((_, i) => i % 2 === 1);
+    return { lo: Math.min(...n), hi: Math.max(...n) };
+  };
+  it('every one-line lockup centres its word on the C of the mark, not on the box that holds the pen', () => {
+    const body = ys(MARK.body);
+    const mid = (body.lo + body.hi) / 2;
+    for (const lang of Object.keys(LOCKUP) as (keyof typeof LOCKUP)[]) {
+      const L = LOCKUP[lang].plain;
+      const w = ys(L.word);
+      // within 1.5 % of the mark's height (outline control points make the box a hair loose)
+      expect(Math.abs((w.lo + w.hi) / 2 - (L.ty + mid)), lang).toBeLessThan(1.5);
+    }
   });
 });
