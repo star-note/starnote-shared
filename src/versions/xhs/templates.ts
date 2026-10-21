@@ -1,6 +1,8 @@
 import type { XhsCard, XhsCardKind } from '../../api/versions';
 import { ellipsize, fitLine, fitTitleBox, type Measure, wrapText } from '../../cover/fitText';
 import { COVER_FONT } from '../../cover/generateCover';
+import { drawWatermark, type WatermarkSpec } from '../../watermark/draw';
+import { textPlan } from '../../watermark/layout';
 
 /**
  * 小红书卡片模板 (CONTRACTS-r9 §0: 自有 canvas, reusing the cover generator's CJK-aware fitting). Every template paints
@@ -27,8 +29,11 @@ export interface PaintOptions {
   index?: number;
   total?: number;
   image?: PaintImage | null;
-  /** Small 「辰记」 in the corner. */
-  watermark?: boolean;
+  /**
+   * 辰记水印 (`watermarkPlan`): the inset text line sits in the footer, right-aligned in the card's ink; a `frame`
+   * band is painted by `paintToCanvas` under a card laid out on a shorter frame. `true` = the plain text line.
+   */
+  watermark?: boolean | WatermarkSpec;
 }
 
 interface Geo {
@@ -977,11 +982,12 @@ export function paintXhsCard(ctx: CanvasRenderingContext2D, card: XhsCard, opts:
   const giant = card.kind === 'section' && look.sectionNumber === 'giant';
   if (card.kind !== 'cover' && !giant && opts.index !== undefined && opts.total && !landscape)
     ctx.fillText(`${opts.index + 1} / ${opts.total}`, fx0, base);
-  if (opts.watermark) {
-    const mark = '辰记';
-    ctx.globalAlpha = 0.7;
-    ctx.fillText(mark, fx1 - ctx.measureText(mark).width, base);
-    ctx.globalAlpha = 1;
+  const wm: WatermarkSpec | null =
+    opts.watermark === true ? { plan: textPlan() } : opts.watermark || null;
+  if (wm?.plan.enabled && wm.plan.layout === 'inset') {
+    // the designed footer keeps the text line (cards never carry the code: 小红书 / 配图 rules)
+    const plan = wm.plan.variant === 'text' ? wm.plan : { ...wm.plan, variant: 'text' as const, qr: false, url: null, ecc: null };
+    drawWatermark(ctx, { w, h }, { ...wm, plan, place: { x: fx1, y: base - fs * 0.36, ink: look.sub, align: 'right' } });
   }
   ctx.restore();
 }

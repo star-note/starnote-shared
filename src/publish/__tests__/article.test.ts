@@ -11,26 +11,40 @@ import {
 } from '../article';
 import { enhanceArticle } from '../enhance';
 
-
 const text = (t: string): TiptapJSON => ({ type: 'text', text: t });
 const doc: TiptapJSON = {
   type: 'doc',
   content: [
     { type: 'heading', attrs: { level: 2, id: 'editor-uuid' }, content: [text('Intro')] },
-    { type: 'codeBlock', attrs: { language: 'javascript' }, content: [text('const a = 1;\nreturn a;')] },
+    {
+      type: 'codeBlock',
+      attrs: { language: 'javascript' },
+      content: [text('const a = 1;\nreturn a;')],
+    },
     {
       type: 'table',
       content: [
         {
           type: 'tableRow',
           content: [
-            { type: 'tableHeader', attrs: { colwidth: [120] }, content: [{ type: 'paragraph', content: [text('A')] }] },
-            { type: 'tableHeader', attrs: { colwidth: [80] }, content: [{ type: 'paragraph', content: [text('B')] }] },
+            {
+              type: 'tableHeader',
+              attrs: { colwidth: [120] },
+              content: [{ type: 'paragraph', content: [text('A')] }],
+            },
+            {
+              type: 'tableHeader',
+              attrs: { colwidth: [80] },
+              content: [{ type: 'paragraph', content: [text('B')] }],
+            },
           ],
         },
       ],
     },
-    { type: 'imageBlock', attrs: { src: '/api/v1/assets/x', width: 200, align: 'right', caption: 'Cap' } },
+    {
+      type: 'imageBlock',
+      attrs: { src: '/api/v1/assets/x', width: 200, align: 'right', caption: 'Cap' },
+    },
     { type: 'notAType', content: [{ type: 'paragraph', content: [text('kept')] }] },
   ],
 };
@@ -45,17 +59,25 @@ describe('convertArticle', () => {
   });
 
   it('highlights code with the editor token classes, line numbers and the language label', () => {
-    expect(out.html).toContain('<pre class="shj"><code class="language-javascript"><span class="shj-kwd">const</span>');
-    expect(out.html).toContain('<div aria-hidden="true" class="richtext-code-block__gutter"><span>1</span><span>2</span></div>');
+    expect(out.html).toContain(
+      '<pre class="shj"><code class="language-javascript"><span class="shj-kwd">const</span>',
+    );
+    expect(out.html).toContain(
+      '<div aria-hidden="true" class="richtext-code-block__gutter"><span>1</span><span>2</span></div>',
+    );
     expect(out.html).toContain('<span class="richtext-code-block__lang">Javascript</span>');
     expect(out.html).toContain('aria-label="复制代码"');
   });
 
   it('keeps column widths, image size / alignment / caption and unknown content', () => {
-    expect(out.html).toContain('<div class="tableWrapper"><table style="width: 200px;"><colgroup><col style="width: 120px;"><col style="width: 80px;"></colgroup>');
+    expect(out.html).toContain(
+      '<div class="tableWrapper"><table style="width: 200px;"><colgroup><col style="width: 120px;"><col style="width: 80px;"></colgroup>',
+    );
     expect(out.html).toContain('style="display: block; text-align: right;"');
     expect(out.html).toMatch(/style="width: 200px; transform: none;?"/);
-    expect(out.html).toContain('<figcaption class="image-view__caption" style="text-align: right;">Cap</figcaption>');
+    expect(out.html).toContain(
+      '<figcaption class="image-view__caption" style="text-align: right;">Cap</figcaption>',
+    );
     expect(out.html).toContain('<p>kept</p>');
   });
 
@@ -66,7 +88,12 @@ describe('convertArticle', () => {
 
   it('detects formulas', () => {
     expect(hasMath(doc)).toBe(false);
-    expect(hasMath({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'katex', attrs: { text: 'x' } }] }] })).toBe(true);
+    expect(
+      hasMath({
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'katex', attrs: { text: 'x' } }] }],
+      }),
+    ).toBe(true);
   });
 });
 

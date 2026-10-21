@@ -97,7 +97,8 @@ describe('xhs card templates', () => {
               expect(d.y, `${where} ${d.text}`).toBeLessThanOrEqual(f.h);
               expect(d.y - d.size * 0.9, `${where} ${d.text}`).toBeGreaterThanOrEqual(-1);
             }
-            expect(draws.some((d) => d.text === '辰记'), where).toBe(true);
+            // the watermark's text line (drawn letter by letter for its tracking)
+            expect(draws.map((d) => d.text).join(''), where).toContain('辰记');
             if (withImage && f.h > f.w) expect(images.length, where).toBe(1);
           }
         }

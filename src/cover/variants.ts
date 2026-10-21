@@ -14,6 +14,9 @@
 import { type CoverOptions, generateCoverFile } from './generateCover';
 import { uploadImage, type UploadDeps } from '../editor/upload';
 import type { MagazineInput, TemplateKey } from './magazine/types';
+import { watermarkFile } from '../watermark/browser';
+import type { WatermarkSpec } from '../watermark/draw';
+import { type WatermarkInput, watermarkSpec, type WatermarkTarget } from '../watermark/plan';
 
 export type CoverVariantKey = 'og' | 'wide' | 'square' | 'portrait';
 export type CoverVariants = Partial<Record<CoverVariantKey, string>>;
@@ -34,6 +37,22 @@ export const VARIANT_LABELS: Record<CoverVariantKey, { ratio: string; name: stri
     square: { ratio: '1:1', name: '次条封面', use: '公众号次条封面、缩略图' },
     portrait: { ratio: '3:4', name: '小红书', use: '小红书等 3:4 图文平台' },
   };
+
+/**
+ * Where each size goes, for the watermark's platform rules: share cards travel to 知乎 / X / 微信 alike (the text
+ * line), 公众号 takes the code, 小红书 forbids it.
+ */
+export const VARIANT_TARGETS: Record<CoverVariantKey, WatermarkTarget[] | null> = {
+  og: null,
+  wide: ['wechat'],
+  square: ['wechat'],
+  portrait: ['xiaohongshu'],
+};
+
+/** The watermark of one size (`null` = none). Article pictures used as a cover are left as they are. */
+export function variantWatermark(key: CoverVariantKey, input: WatermarkInput | null | undefined): WatermarkSpec | null {
+  return input ? watermarkSpec(VARIANT_TARGETS[key], VARIANT_SIZES[key], input) : null;
+}
 
 /** What the author picked in the cover field; enough to re-render the same cover at any size. */
 export type CoverSource =
@@ -113,12 +132,13 @@ async function cropImageFile(
   return new File([blob], `cover-${key}-${src.hash.slice(0, 12)}.jpg`, { type: 'image/jpeg' });
 }
 
-/** One variant as an image file. */
-export async function renderVariantFile(source: CoverSource, key: CoverVariantKey): Promise<File> {
+/** One variant as an image file; `watermark` = the author's choice and words (each size plans its own). */
+export async function renderVariantFile(source: CoverSource, key: CoverVariantKey, watermark?: WatermarkInput | null): Promise<File> {
   if (source.kind === 'image') return cropImageFile(source, key);
-  if (source.kind === 'generated') return generateCoverFile({ ...source.opts, size: key });
+  const wm = variantWatermark(key, watermark);
+  if (source.kind === 'generated') return generateCoverFile({ ...source.opts, size: key, watermark: wm });
   const { renderMagazineFile } = await import('./magazine/render');
-  return (await renderMagazineFile(source.template, source.input, key)).file;
+  return watermarkFile((await renderMagazineFile(source.template, source.input, key)).file, wm);
 }
 
 export interface VariantProgress {
@@ -135,13 +155,14 @@ export async function buildCoverVariants(
   deps: UploadDeps,
   onProgress?: (p: VariantProgress) => void,
   keys: CoverVariantKey[] = VARIANT_KEYS,
+  watermark?: WatermarkInput | null,
 ): Promise<CoverVariants> {
   let done = 0;
   onProgress?.({ done, total: keys.length });
   const results = await Promise.allSettled(
     keys.map(async (key) => {
       try {
-        const file = await renderVariantFile(source, key);
+        const file = await renderVariantFile(source, key, watermark);
         const asset = await uploadImage(file, deps);
         return [key, asset.hash] as const;
       } finally {

@@ -137,6 +137,8 @@ export interface UserPreferences {
   plan_collapsed?: boolean;
   /** The first-use preferences card was shown once (default off). */
   publish_intro_seen?: boolean;
+  /** r10 辰记水印 on exported pictures (defaults: on, inset, with a QR code); a patch may send part of it. */
+  watermark?: { enabled?: boolean; style?: 'inset' | 'frame'; qr?: boolean };
 }
 
 export interface AuthPayload {
